@@ -4,32 +4,36 @@
         <title>D3.js Charts</title>
 	<script src="./d3.min.js"></script>
 	<body>
+	<button id="button_tobar">bar</button>
+	<button id="button_topie">pie</button>
    </body>
 
    <script type="text/javascript">
-	    var width = 960,
-	    height = 500;
+   		//svg
+	    var width = 600,
+	    	height = 400;
 
-	    var barheight = 80,
-	    	barwidth = 30,
-	    	base = [width/2 , height/2];
-
+	    var data = [30,25,12,30,40,29];
+	
+	    //bar chart
+	    var barheight = 200,
+	    	barwidth = 40,
+	    	base = [width/2 , height/2],
+	        y = d3.scale.linear().range([barheight,0]).domain([0,d3.max(data)]);
+	    //pie chart
 	    var center = [width/2,height/2],
 	    	innerRadius = 50,
 	    	outerRadius = innerRadius + barwidth,
-	    	startAngle = 0,
-	    	endAngle = Math.PI / 2;
-
-	    var data = [500,750,120,800];
-
-	    var color = ["red","blue","yellow","green"];
-	    var	p = d3.layout.pie(),
+			p = d3.layout.pie(),
 	    	pd = p(data),
 	    	k = pd.map(function(d){return d3.scale.linear().domain([0,+d.value]).range([d.startAngle,d.endAngle]);});
 
-/*	[0,i,barwidth,i]*/
 
-/*	[innerRadius * sin(theta), innerRadius * cos(theta) , outerRadius * sin(theta), outerRadius * cos(theta)]  */
+	    var color = ["red","blue","yellow","green","silver","steelblue"];
+
+/*	[0,i,barwidth,i]
+	To
+	[innerRadius * sin(theta), innerRadius * cos(theta) , outerRadius * sin(theta), outerRadius * cos(theta)]  */
 
 		var svg = d3.select("body").append("svg")
 		    .attr("width", width)
@@ -45,16 +49,17 @@
 			   	.attr("class","bar")
 			   	.attr('transform',function(d,i){return 'translate(' + (50 * i) + ',' + 0 + ')';})
 			   	.attr("stroke",function(d,i){return color[i];})
-			   	.attr("ix",function(d,i){return i;});
+			   	.attr("ix",function(d,i){return i;})
+			   	.attr("stroke-width",5);
 
 		var lines = bar.selectAll("line")
 				.data(function(d){return d3.range(d);})
 			   .enter()
 			    .append("line")
 			    .attr("x1",function(d){return 0;})
-			    .attr("y1",function(d){return -d;})
+			    .attr("y1",function(d){return y(d);})
 			    .attr("x2",function(d){return barwidth;})
-			    .attr("y2",function(d){return -d;});
+			    .attr("y2",function(d){return y(d);});
 
 			d3.selectAll(".bar")
 				.each(toPie);
@@ -66,7 +71,7 @@
 	    d3.select(this).selectAll("line")
 		    .transition()
 		    .delay(300)
-		    .duration(500)
+		    .duration(800)
 		    .attr("x1",function(d){return innerRadius * Math.sin(k[ki](d)) - 50 * ki;})
 		    .attr("y1",function(d){return innerRadius * Math.cos(k[ki](d));})
 		    .attr("x2",function(d){return outerRadius * Math.sin(k[ki](d)) - 50 * ki;})
@@ -78,15 +83,19 @@
 	    d3.select(this).selectAll("line")
 		    .transition()
 		    .delay(300)
-		    .duration(500)
+		    .duration(800)
 			.attr("x1",function(d){return 0;})
-		    .attr("y1",function(d){return -d;})
+		    .attr("y1",function(d){return y(d);})
 		    .attr("x2",function(d){return barwidth;})
-		    .attr("y2",function(d){return -d;});
+		    .attr("y2",function(d){return y(d);});
 
 	}
-
-
+			d3.select("#button_tobar").on("click",function(){
+				d3.selectAll(".bar").each(toBar);
+			});
+			d3.select("#button_topie").on("click",function(){
+				d3.selectAll(".bar").each(toPie);
+			});
 
    </script>
 	</head>
